@@ -1,0 +1,3899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1A2B 猜数字 - 精英挑战</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --success-light: #34d399;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #ffffff;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --shadow: rgba(99, 102, 241, 0.1);
+            --shadow-lg: rgba(99, 102, 241, 0.15);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text);
+        }
+
+        /* 背景装饰 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .bg-circle-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.05));
+            top: -100px;
+            right: -100px;
+        }
+
+        .bg-circle-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.05));
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .bg-circle-3 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.05));
+            top: 50%;
+            left: 10%;
+        }
+
+        .app {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部 */
+        .header {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            box-shadow: 0 2px 20px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-chip:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+
+        .user-info {
+            text-align: left;
+        }
+
+        .user-name {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-level {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 30px;
+        }
+
+        /* 登录卡片 */
+        .login-card {
+            background: var(--bg-card);
+            border-radius: 30px;
+            padding: 50px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: cardFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .login-card h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2em;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .login-card .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .glow-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 18px 20px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            color: var(--text);
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 5px;
+            transition: all 0.3s;
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .glow-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .glow-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .glow-btn:hover::before {
+            left: 100%;
+        }
+
+        .glow-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
+        }
+
+        .hint-text {
+            margin-top: 25px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* 游戏区域 */
+        .game-area, .multiplayer-area, .ranking-area {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .game-area.active, .multiplayer-area.active, .ranking-area.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 卡片通用样式 */
+        .game-info-card, .multi-card, .ranking-card {
+            background: var(--bg-card);
+            border-radius: 25px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px var(--shadow);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--text);
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 统计信息 */
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: var(--bg);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* 难度选择 */
+        .difficulty-section {
+            background: var(--bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .difficulty-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .difficulty-btn {
+            padding: 12px 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .difficulty-btn:hover {
+            border-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .difficulty-btn.active {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .difficulty-btn .difficulty-name {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .difficulty-btn .difficulty-desc {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        /* 自定义次数选择器 */
+        .custom-attempts-section {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .custom-attempts-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        
+        .custom-label {
+            font-weight: 600;
+            color: var(--text);
+            min-width: 90px;
+        }
+        
+        .attempts-slider-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .attempts-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, var(--success), var(--warning), var(--danger));
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .attempts-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+        }
+        
+        .attempts-slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+        }
+        
+        .attempts-value {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.2em;
+            color: var(--primary);
+            min-width: 35px;
+            text-align: center;
+        }
+        
+        .attempts-unit {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .custom-presets {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .custom-presets .difficulty-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        /* 位数选择 */
+        .digit-section {
+            background: var(--bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .digit-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .digit-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .digit-btn {
+            padding: 12px 10px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .digit-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .digit-btn.active {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(6, 182, 212, 0.05));
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .digit-btn .digit-name {
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+
+        .digit-btn .digit-desc {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        /* 提示框 */
+        .hint-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 15px;
+            padding: 15px 20px;
+        }
+
+        .hint-box p {
+            color: var(--warning);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 猜测区域 */
+        .guess-section {
+            background: var(--bg-card);
+            border-radius: 25px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px var(--shadow);
+        }
+
+        .guess-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .digit-input {
+            flex: 1;
+            padding: 20px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            color: var(--text);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 8px;
+            transition: all 0.3s;
+        }
+
+        .digit-input:focus {
+            outline: none;
+            border-color: var(--success);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .submit-btn {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, var(--success), #059669);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        /* 历史记录 */
+        .history-card, .room-card {
+            background: var(--bg-card);
+            border-radius: 25px;
+            padding: 25px;
+            max-height: 350px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px var(--shadow);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .guess-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 6px;
+        }
+
+        .result-badge {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .badge-a {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-b {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-0 {
+            background: var(--bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        /* 多人模式 */
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 15px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .mode-tab:hover, .mode-tab.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .mode-tab .icon {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .mode-tab .title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .mode-tab .desc {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .room-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .room-input {
+            grid-column: 1 / -1;
+        }
+
+        .room-input input {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        .room-input input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* 双人对战样式 */
+        .duel-players-setup {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .player-setup-box {
+            flex: 1;
+            max-width: 160px;
+            text-align: center;
+        }
+
+        .player-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .player-setup-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .duel-name-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .duel-name-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .vs-divider {
+            font-size: 2em;
+            color: var(--warning);
+            text-shadow: 0 0 20px var(--warning);
+        }
+
+        /* 多人对战样式 */
+        .player-count-section {
+            margin-bottom: 20px;
+        }
+
+        .player-count-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .player-count-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .player-count-btn {
+            padding: 10px 25px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .player-count-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .player-count-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .multi-players-setup {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .multi-player-box {
+            width: 140px;
+            text-align: center;
+            padding: 15px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+
+        .multi-player-box.current-turn {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .multi-player-icon {
+            font-size: 2.5em;
+            margin-bottom: 8px;
+        }
+
+        .multi-player-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .multi-player-input {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .multi-player-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* 游戏进行中的玩家卡片 */
+        .multi-player-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .multi-stat-card {
+            min-width: 90px;
+            padding: 12px 15px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            opacity: 0.6;
+        }
+
+        .multi-stat-card.active {
+            border-color: var(--primary);
+            opacity: 1;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .multi-stat-card.eliminated {
+            opacity: 0.3;
+            text-decoration: line-through;
+        }
+
+        .multi-stat-card.winner {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+            opacity: 1;
+        }
+
+        .multi-stat-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .multi-stat-name {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .multi-stat-info {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .multi-stat-info .num {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* 历史记录区域 */
+        .multi-history-section {
+            margin-top: 20px;
+        }
+
+        .multi-history-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .multi-history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .multi-history-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .multi-history-box-header {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .multi-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            padding: 3px 5px;
+            margin: 2px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+        }
+        
+        .history-num {
+            color: var(--text-muted);
+            min-width: 20px;
+        }
+        
+        .history-result {
+            font-weight: 600;
+        }
+        
+        .history-result.has-a {
+            color: var(--warning);
+        }
+
+        .multi-history-item.win {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+        
+        .multi-history-box.winner {
+            border: 2px solid var(--success);
+        }
+        
+        .multi-history-box.eliminated {
+            opacity: 0.6;
+        }
+
+        .multi-empty-hint {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 11px;
+            padding: 15px 0;
+        }
+
+        .turn-indicator {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15));
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .current-round {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9em;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .current-turn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .player-badge {
+            font-size: 2em;
+        }
+
+        .player-badge-small {
+            font-size: 1em;
+        }
+
+        .turn-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .turn-switch-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .duel-stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .duel-stat-box {
+            flex: 1;
+            max-width: 140px;
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+
+        .duel-stat-box.player1 {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+        }
+
+        .duel-stat-box.player2 {
+            border-color: rgba(239, 68, 68, 0.5);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+        }
+
+        .duel-vs {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: var(--warning);
+        }
+
+        .duel-player-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .duel-player-score, .duel-player-remaining {
+            margin: 5px 0;
+        }
+
+        .score-num, .remaining-num {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .score-label, .remaining-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 5px;
+        }
+
+        .duel-history-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .duel-history-box {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .duel-history-box.player1-history {
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .duel-history-box.player2-history {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .duel-history-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .duel-history-list {
+            font-size: 13px;
+        }
+
+        .history-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 8px;
+            margin: 3px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .empty-hint {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            padding: 20px 0;
+        }
+
+        .btn-sm {
+            padding: 12px 20px;
+            font-size: 14px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-sm:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-join {
+            background: linear-gradient(135deg, var(--accent), #0891b2);
+            color: white;
+        }
+
+        .btn-leave {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .players-list {
+            margin-top: 20px;
+        }
+
+        .players-title {
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .player-item.current {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--primary);
+        }
+
+        .player-item.winner {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 179, 71, 0.1));
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            animation: glow 1s ease infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+            to { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+        }
+
+        .player-avatar-sm {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            color: white;
+        }
+
+        .player-details {
+            flex: 1;
+        }
+
+        .player-name-sm {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .player-status {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .player-attempts {
+            text-align: right;
+        }
+
+        .player-attempts .count {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .player-attempts .label {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .crown {
+            font-size: 1.5em;
+            margin-left: 8px;
+        }
+
+        /* 排行榜 */
+        .ranking-list {
+            list-style: none;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg);
+            border-radius: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .ranking-item:hover {
+            background: var(--bg-card-hover);
+            transform: translateX(10px);
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .ranking-item.gold {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 179, 71, 0.1));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .ranking-item.silver {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), rgba(168, 168, 168, 0.1));
+            border: 1px solid rgba(192, 192, 192, 0.3);
+        }
+
+        .ranking-item.bronze {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), rgba(184, 115, 51, 0.1));
+            border: 1px solid rgba(205, 127, 50, 0.3);
+        }
+
+        .rank-badge {
+            width: 45px;
+            font-size: 24px;
+            text-align: center;
+            margin-right: 15px;
+        }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .player-stats {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .player-rate {
+            text-align: right;
+        }
+
+        .rate-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            max-width: 400px;
+            animation: modalPop 0.5s ease;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 得分展示 */
+        .score-display {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .score-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .score-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: scorePop 0.5s ease;
+        }
+
+        @keyframes scorePop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .score-breakdown {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .score-breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .score-breakdown-item .value {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* 连胜徽章 */
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, var(--warning), #f97316);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .streak-badge-small {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--warning), #f97316);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .modal-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            color: var(--text);
+            margin-bottom: 15px;
+        }
+
+        .modal-message {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .modal-stats {
+            background: var(--bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .modal-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-stat:last-child {
+            border-bottom: none;
+        }
+
+        .modal-stat-label {
+            color: var(--text-secondary);
+        }
+
+        .modal-stat-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+        }
+        
+        /* 排名显示样式 */
+        .secret-answer {
+            background: var(--bg);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .ranking-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        
+        .ranking-item.first {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+            border: 2px solid var(--warning);
+        }
+        
+        .ranking-position {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.1em;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .ranking-info {
+            flex: 1;
+        }
+        
+        .ranking-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .ranking-status {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .ranking-score {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1em;
+            color: var(--warning);
+        }
+
+        .modal-btn-secondary {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 规则弹窗 */
+        .rule-content {
+            max-height: 60vh;
+            overflow-y: auto;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+
+        .rule-section {
+            margin-bottom: 25px;
+        }
+
+        .rule-section h3 {
+            color: var(--primary);
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rule-section p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .example-box {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .example-row:last-child {
+            border-bottom: none;
+        }
+
+        .example-input {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 4px;
+        }
+
+        .example-result {
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .tip-box h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .tip-box p {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .tip-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            display: none;
+            background: var(--bg-card);
+            box-shadow: 0 -4px 20px var(--shadow);
+            padding: 15px;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .bottom-nav.show {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+            color: white;
+        }
+
+        /* 音乐控制 */
+        .music-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .music-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .music-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary);
+            color: white;
+        }
+        
+        .music-btn.playing {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        #nextBtn {
+            font-size: 12px;
+        }
+        
+        #volumeSlider {
+            width: 80px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--border);
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        #volumeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        /* 等待状态 */
+        .waiting-state {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .waiting-state .pulse {
+            font-size: 60px;
+            animation: pulse 1.5s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* 难度说明弹窗 */
+        .difficulty-modal {
+            background: var(--bg-card);
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .difficulty-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .difficulty-info-item {
+            background: var(--bg);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .difficulty-info-item .icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .difficulty-info-item .name {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .difficulty-info-item .desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .logo-text {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .game-info-card, .guess-section, .history-card, .multi-card, .ranking-card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+            
+            .game-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-value {
+                font-size: 1.5em;
+            }
+
+            .difficulty-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .guess-input-container {
+                flex-direction: column;
+            }
+            
+            .submit-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .bottom-nav {
+                flex-wrap: wrap;
+            }
+
+            .nav-btn {
+                padding: 10px 18px;
+                font-size: 12px;
+            }
+
+            .difficulty-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-decoration">
+        <div class="bg-circle bg-circle-1"></div>
+        <div class="bg-circle bg-circle-2"></div>
+        <div class="bg-circle bg-circle-3"></div>
+    </div>
+
+    <div class="app">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🎯</div>
+                <span class="logo-text">1A2B</span>
+            </div>
+            <div class="music-control">
+                <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="背景音乐">🎵</button>
+                <button class="music-btn" id="nextBtn" onclick="nextMusic()" title="下一首">▶</button>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="setVolume(this.value)">
+            </div>
+            <div class="user-chip" id="userChip" style="display: none;" onclick="logout()">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">游客</div>
+                    <div class="user-level" id="userLevel">Lv.1 新手</div>
+                </div>
+            </div>
+        </header>
+        <audio id="bgMusic" loop>
+            <source src="C400001sInVF0hbF3V.m4a">
+        </audio>
+
+        <main class="main-content">
+            <!-- 登录区 -->
+            <div class="login-card" id="loginCard">
+                <h1>精英<span class="glow-text">挑战</span></h1>
+                <p class="subtitle">1A2B 猜数字游戏</p>
+                
+                <div class="input-wrapper">
+                    <input type="text" id="usernameInput" placeholder="输入你的昵称" maxlength="15" onkeypress="handleEnter(event)">
+                </div>
+                
+                <button class="glow-btn" onclick="login()">
+                    🚀 开始挑战
+                </button>
+                
+                <p class="hint-text">输入昵称即可自动注册，开启你的挑战之旅</p>
+            </div>
+
+            <!-- 单人游戏区 -->
+            <div class="game-area" id="gameArea">
+                <div class="game-info-card">
+                    <div class="card-title">🎮 单人模式</div>
+                    <div class="game-stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="statGames">0</div>
+                            <div class="stat-label">总场次</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="statWins">0</div>
+                            <div class="stat-label">胜利</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="statBest">-</div>
+                            <div class="stat-label">最佳</div>
+                        </div>
+                    </div>
+
+                    <!-- 位数选择 -->
+                    <div class="digit-section">
+                        <div class="digit-title">
+                            🔢 数字位数
+                            <span id="digitHint" style="font-size: 12px; color: var(--accent); margin-left: auto;">4位数字</span>
+                        </div>
+                        <div class="digit-options">
+                            <button class="digit-btn" onclick="setDigitLength(3)">
+                                <div class="digit-name">3</div>
+                                <div class="digit-desc">简单</div>
+                            </button>
+                            <button class="digit-btn" onclick="setDigitLength(4)">
+                                <div class="digit-name">4</div>
+                                <div class="digit-desc">标准</div>
+                            </button>
+                            <button class="digit-btn" onclick="setDigitLength(5)">
+                                <div class="digit-name">5</div>
+                                <div class="digit-desc">困难</div>
+                            </button>
+                            <button class="digit-btn" onclick="setDigitLength(6)">
+                                <div class="digit-name">6</div>
+                                <div class="digit-desc">地狱</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 难度选择 - 自定义次数 -->
+                    <div class="difficulty-section">
+                        <div class="difficulty-title">
+                            ⚙️ 游戏难度
+                            <span style="font-size: 12px; color: var(--text-muted); margin-left: auto; cursor: pointer;" onclick="showDifficultyInfo()">❓</span>
+                        </div>
+                        <div class="custom-attempts-section">
+                            <div class="custom-attempts-row">
+                                <span class="custom-label">🔢 猜测次数</span>
+                                <div class="attempts-slider-container">
+                                    <input type="range" id="attemptsSlider" min="5" max="20" value="10" class="attempts-slider" oninput="updateAttemptsDisplay(this.value)">
+                                    <span class="attempts-value" id="attemptsValue">10</span>
+                                    <span class="attempts-unit">次</span>
+                                </div>
+                            </div>
+                            <div class="custom-presets">
+                                <button class="difficulty-btn" onclick="setCustomAttempts(5)">5次</button>
+                                <button class="difficulty-btn" onclick="setCustomAttempts(10)">10次</button>
+                                <button class="difficulty-btn active" onclick="setCustomAttempts(15)">15次</button>
+                                <button class="difficulty-btn" onclick="setCustomAttempts(20)">20次</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hint-box">
+                        <p>💡 输入 <strong id="digitHintText">4位不重复</strong> 的数字，猜出神秘代码！</p>
+                        <p id="limitHint" style="margin-top: 8px; display: none;">⏱️ 剩余 <strong id="remainingAttempts">10</strong> 次机会</p>
+                    </div>
+                </div>
+
+                <div class="guess-section">
+                    <div class="guess-input-container">
+                        <input type="text" class="digit-input" id="guessInput" placeholder="????" maxlength="4" onkeypress="handleGuessKey(event)">
+                        <button class="submit-btn" onclick="makeGuess()">
+                            <span>🎯</span> 猜测
+                        </button>
+                    </div>
+                </div>
+
+                <div class="history-card">
+                    <div class="card-title">📜 挑战记录</div>
+                    <div id="historyList">
+                        <div class="empty-state">
+                            <div class="icon">🎮</div>
+                            <p>开始你的挑战...</p>
+                        </div>
+                    </div>
+                    <button class="glow-btn" style="margin-top: 15px;" onclick="newGame()">
+                        🔄 新游戏
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- 多人对战区 -->
+            <div class="multiplayer-area" id="multiplayerArea">
+                <div class="multi-card">
+                    <div class="card-title">👥 多人对战</div>
+                    
+                    <!-- 玩家设置 -->
+                    <div id="playerSetup">
+                        <!-- 玩家数量选择 -->
+                        <div class="player-count-section">
+                            <div class="player-count-title">👥 玩家数量</div>
+                            <div class="player-count-options">
+                                <button class="player-count-btn" onclick="setPlayerCount(1)">1人</button>
+                                <button class="player-count-btn active" onclick="setPlayerCount(2)">2人</button>
+                                <button class="player-count-btn" onclick="setPlayerCount(3)">3人</button>
+                                <button class="player-count-btn" onclick="setPlayerCount(4)">4人</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 玩家输入区域 -->
+                        <div class="multi-players-setup" id="multiPlayersSetup">
+                            <!-- 动态生成 -->
+                        </div>
+                        
+                        <!-- 位数选择 -->
+                        <div class="digit-section" style="margin-top: 20px;">
+                            <div class="digit-title">🔢 数字位数</div>
+                            <div class="digit-options">
+                                <button class="digit-btn" onclick="setMultiDigitLength(3)">
+                                    <div class="digit-name">3</div>
+                                    <div class="digit-desc">简单</div>
+                                </button>
+                                <button class="digit-btn active" onclick="setMultiDigitLength(4)">
+                                    <div class="digit-name">4</div>
+                                    <div class="digit-desc">标准</div>
+                                </button>
+                                <button class="digit-btn" onclick="setMultiDigitLength(5)">
+                                    <div class="digit-name">5</div>
+                                    <div class="digit-desc">困难</div>
+                                </button>
+                                <button class="digit-btn" onclick="setMultiDigitLength(6)">
+                                    <div class="digit-name">6</div>
+                                    <div class="digit-desc">地狱</div>
+                                </button>
+                            </div>
+                        </div>
+                        
+                    <!-- 难度选择 - 自定义次数 -->
+                        <div class="difficulty-section" style="margin-top: 20px;">
+                            <div class="difficulty-title">⚙️ 游戏难度</div>
+                            <div class="custom-attempts-section">
+                                <div class="custom-attempts-row">
+                                    <span class="custom-label">🔢 猜测次数</span>
+                                    <div class="attempts-slider-container">
+                                        <input type="range" id="multiAttemptsSlider" min="5" max="20" value="15" class="attempts-slider" oninput="updateMultiAttemptsDisplay(this.value)">
+                                        <span class="attempts-value" id="multiAttemptsValue">15</span>
+                                        <span class="attempts-unit">次/人</span>
+                                    </div>
+                                </div>
+                                <div class="custom-presets">
+                                    <button class="difficulty-btn" onclick="setMultiCustomAttempts(5)">5次</button>
+                                    <button class="difficulty-btn" onclick="setMultiCustomAttempts(10)">10次</button>
+                                    <button class="difficulty-btn" onclick="setMultiCustomAttempts(15)">15次</button>
+                                    <button class="difficulty-btn active" onclick="setMultiCustomAttempts(20)">20次</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="glow-btn" style="margin-top: 20px;" onclick="startMultiGame()">
+                            🎮 开始对战
+                        </button>
+                    </div>
+                    
+                    <!-- 对战进行中 -->
+                    <div id="multiGameArea" style="display: none;">
+                        <!-- 当前回合指示 -->
+                        <div class="turn-indicator" id="turnIndicator">
+                            <div class="current-round" id="currentRoundDisplay">第 1 轮</div>
+                            <div class="current-turn" id="currentTurnDisplay">
+                                <span class="player-badge" id="currentPlayerBadge">🔵</span>
+                                <span class="turn-text" id="turnText">轮到 玩家1 猜测</span>
+                            </div>
+                            <div class="turn-switch-hint">每人每轮猜一次，共同目标</div>
+                        </div>
+                        
+                        <!-- 玩家状态卡片 -->
+                        <div class="multi-player-cards" id="multiPlayerCards">
+                            <!-- 动态生成 -->
+                        </div>
+                        
+                        <!-- 输入区域 -->
+                        <div class="guess-section">
+                            <div class="guess-input-container">
+                                <input type="text" class="digit-input" id="multiGuessInput" placeholder="????" maxlength="4" onkeypress="handleMultiGuessKey(event)" oninput="showCurrentPlayerHistory()">
+                                <button class="submit-btn" onclick="makeMultiGuess()">
+                                    <span>🎯</span> 猜测
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 全部玩家历史记录 -->
+                        <div class="multi-history-section">
+                            <div class="multi-history-title">📜 各玩家记录</div>
+                            <div class="multi-history-grid" id="multiHistoryGrid">
+                                <!-- 动态生成 -->
+                            </div>
+                        </div>
+                        
+                        <!-- 神秘数字（游戏结束后显示） -->
+                        <div class="hint-box" id="secretHintBox" style="display: none; margin-top: 15px;">
+                            <p>🔐 神秘数字: <strong id="secretDisplay">????</strong></p>
+                        </div>
+                        
+                        <button class="glow-btn btn-leave" style="margin-top: 15px;" onclick="endMultiGame()">
+                            🏠 返回设置
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 排行榜区 -->
+            <div class="ranking-area" id="rankingArea">
+                <div class="ranking-card">
+                    <div class="card-title">🏆 英雄榜</div>
+                    <ul class="ranking-list" id="rankingList">
+                        <!-- 动态生成 -->
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav" id="bottomNav">
+            <button class="nav-btn active" onclick="showTab('game')">
+                🎮 单人
+            </button>
+            <button class="nav-btn" onclick="showTab('multiplayer')">
+                👥 多人
+            </button>
+            <button class="nav-btn" onclick="showTab('ranking')">
+                🏆 排行
+            </button>
+            <button class="nav-btn" onclick="showRules()">
+                📖 规则
+            </button>
+        </div>
+    </div>
+
+    <!-- 结果弹窗 -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">🎉</div>
+            <h2 class="modal-title" id="modalTitle">恭喜通关！</h2>
+            <p class="modal-message" id="modalMessage">你真是太厉害了！</p>
+            
+            <!-- 得分展示 -->
+            <div class="score-display">
+                <div class="score-main">
+                    <span class="score-label">本局得分</span>
+                    <span class="score-value" id="modalScore">+0</span>
+                </div>
+            </div>
+            
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <span class="modal-stat-label">猜测次数</span>
+                    <span class="modal-stat-value" id="modalAttempts">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-label">历史最佳</span>
+                    <span class="modal-stat-value" id="modalBest">-</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-label">总胜利</span>
+                    <span class="modal-stat-value" id="modalWins">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="modal-stat-label">总积分</span>
+                    <span class="modal-stat-value" id="modalTotalScore">0</span>
+                </div>
+                <div class="modal-stat" id="streakRow">
+                    <span class="modal-stat-label">连胜</span>
+                    <span class="modal-stat-value" id="modalStreak">0</span>
+                </div>
+            </div>
+            <button class="modal-btn modal-btn-primary" onclick="closeModal(); newGame();">
+                🔄 再来一局
+            </button>
+            <button class="modal-btn modal-btn-secondary" onclick="closeModal(); showTab('ranking');">
+                🏆 查看排行
+            </button>
+        </div>
+    </div>
+
+    <!-- 规则弹窗 -->
+    <div class="modal-overlay" id="ruleModal">
+        <div class="modal-content" style="max-width: 480px; text-align: center;">
+            <div class="modal-icon" style="font-size: 60px;">📖</div>
+            <h2 class="modal-title">游戏规则</h2>
+            <p class="modal-message">快速了解 1A2B 猜数字</p>
+            
+            <div class="rule-content">
+                <div class="rule-section">
+                    <h3>🎯 游戏目标</h3>
+                    <p>计算机随机生成一个 <strong>3-6位不重复</strong> 的数字（可自定义位数），你的任务是 <strong>猜出这个数字</strong> 是什么。</p>
+                </div>
+
+                <div class="rule-section">
+                    <h3>🔢 如何猜测</h3>
+                    <p>输入你猜测的数字，每位必须是 <strong>0-9</strong> 且 <strong>不能重复</strong>。</p>
+                    <div class="example-box">
+                        <div class="example-row">
+                            <span class="example-input">1234</span>
+                            <span style="color: var(--success);">✓ 有效</span>
+                        </div>
+                        <div class="example-row">
+                            <span class="example-input">5678</span>
+                            <span style="color: var(--success);">✓ 有效</span>
+                        </div>
+                        <div class="example-row">
+                            <span class="example-input">1122</span>
+                            <span style="color: var(--danger);">✗ 有重复</span>
+                        </div>
+                        <div class="example-row">
+                            <span class="example-input">12345</span>
+                            <span style="color: var(--danger);">✗ 位数不对</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rule-section">
+                    <h3>📊 结果含义</h3>
+                    <p>每次猜测后，系统会返回 <strong>XA YB</strong> 格式的结果：</p>
+                    <div class="example-box">
+                        <div class="example-row">
+                            <span style="color: var(--success);">🎯 <strong>A = 位置正确的数字</strong></span>
+                        </div>
+                        <div class="example-row">
+                            <span style="color: var(--warning);">🔶 <strong>B = 数字正确但位置错误</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rule-section">
+                    <h3>⚙️ 难度设置</h3>
+                    <p>游戏提供 <strong>3种难度</strong> 供选择：</p>
+                    <div class="example-box">
+                        <div class="example-row">
+                            <span>🌱 <strong>入门</strong></span>
+                            <span>无限次数，轻松游玩</span>
+                        </div>
+                        <div class="example-row">
+                            <span>⚡ <strong>普通</strong></span>
+                            <span>限制20次机会</span>
+                        </div>
+                        <div class="example-row">
+                            <span>🔥 <strong>困难</strong></span>
+                            <span>仅15次机会，刺激加倍</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rule-section">
+                    <h3>👥 多人对战</h3>
+                    <p>在同一台电脑上与好友对战！2-4名玩家<strong>轮流猜测</strong>同一个神秘数字，<strong>先猜出者获胜</strong>，机会用完则淘汰！</p>
+                    <div class="example-box">
+                        <div class="example-row">
+                            <span>👥 <strong>玩家数量</strong></span>
+                            <span>2-4人</span>
+                        </div>
+                        <div class="example-row">
+                            <span>🟢 <strong>简单</strong></span>
+                            <span>每人20次机会</span>
+                        </div>
+                        <div class="example-row">
+                            <span>⚡ <strong>普通</strong></span>
+                            <span>每人15次机会</span>
+                        </div>
+                        <div class="example-row">
+                            <span>🔥 <strong>困难</strong></span>
+                            <span>每人15次机会</span>
+                        </div>
+                        <div class="example-row">
+                            <span>💀 <strong>地狱</strong></span>
+                            <span>每人5次机会</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rule-section">
+                    <h3>🏆 计分规则</h3>
+                    <p>每局游戏结束后，根据表现获得积分！</p>
+                    <div class="example-box">
+                        <div class="example-row">
+                            <span>🎯 <strong>核心公式</strong></span>
+                            <span>基础分 × 效率系数 × 位数系数 + 奖励</span>
+                        </div>
+                        <div class="example-row">
+                            <span>💯 <strong>基础分</strong></span>
+                            <span>100 分</span>
+                        </div>
+                        <div class="example-row">
+                            <span>⚡ <strong>效率系数</strong></span>
+                            <span>(N-k+1)/N（次数越少系数越高）</span>
+                        </div>
+                        <div class="example-row">
+                            <span>🔢 <strong>位数系数</strong></span>
+                            <span>3位1.0x / 4位1.3x / 5位1.6x / 6位2.0x</span>
+                        </div>
+                        <div class="example-row">
+                            <span>🚀 <strong>快速命中</strong></span>
+                            <span>1次+100 / 2次+60 / ≤3次+40</span>
+                        </div>
+                        <div class="example-row">
+                            <span>🎯 <strong>精准奖励</strong></span>
+                            <span>每次A×3分（每次接近答案）</span>
+                        </div>
+                        <div class="example-row">
+                            <span>📈 <strong>进步奖励</strong></span>
+                            <span>每次比上次更接近+5分</span>
+                        </div>
+                        <div class="example-row">
+                            <span>⭐ <strong>连胜奖励</strong></span>
+                            <span>2连+20 / 3连+40 / 5连+100</span>
+                        </div>
+                        <div class="example-row">
+                            <span>❌ <strong>失败</strong></span>
+                            <span>得0分（不扣分）</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <h4>🎓 猜数字技巧</h4>
+                    <p>• 先用不重复的数字试探，观察反馈</p>
+                    <p>• 注意 <strong>1A0B</strong> 说明数字对但位置全错</p>
+                    <p>• 利用排除法缩小范围</p>
+                    <p>• 最佳成绩通常在 位数~位数+4 次之间</p>
+                </div>
+            </div>
+
+            <button class="modal-btn modal-btn-primary" onclick="closeRuleModal()">
+                ✅ 明白了，开始挑战！
+            </button>
+        </div>
+    </div>
+
+    <!-- 难度说明弹窗 -->
+    <div class="modal-overlay" id="difficultyModal">
+        <div class="modal-content difficulty-modal">
+            <div class="modal-icon" style="font-size: 50px;">⚙️</div>
+            <h2 class="modal-title">难度设置</h2>
+            <p class="modal-message">自定义挑战次数（5-20次）</p>
+            
+            <div class="difficulty-info-grid">
+                <div class="difficulty-info-item">
+                    <div class="icon">🌱</div>
+                    <div class="name">入门模式</div>
+                    <div class="desc">无限猜测次数，适合新手练习</div>
+                </div>
+                <div class="difficulty-info-item">
+                    <div class="icon">⚡</div>
+                    <div class="name">普通模式</div>
+                    <div class="desc">10-15次机会，推荐新手</div>
+                </div>
+                <div class="difficulty-info-item">
+                    <div class="icon">🔥</div>
+                    <div class="name">挑战模式</div>
+                    <div class="desc">5-8次机会，刺激又紧张</div>
+                </div>
+                <div class="difficulty-info-item">
+                    <div class="icon">🏆</div>
+                    <div class="name">极限模式</div>
+                    <div class="desc">5次机会，真正的极限挑战</div>
+                </div>
+            </div>
+            
+            <div class="difficulty-info-grid" style="margin-top: 20px;">
+                <div class="difficulty-info-item">
+                    <div class="icon">🔢</div>
+                    <div class="name">位数设置</div>
+                    <div class="desc">3位简单 / 4位标准 / 5位困难 / 6位地狱</div>
+                </div>
+                <div class="difficulty-info-item">
+                    <div class="icon">💡</div>
+                    <div class="name">自定义优势</div>
+                    <div class="desc">次数越少，效率系数越高！</div>
+                </div>
+            </div>
+
+            <button class="modal-btn modal-btn-primary" onclick="closeDifficultyModal()">
+                ✅ 我知道了
+            </button>
+        </div>
+    </div>
+
+    <!-- 游戏失败弹窗 -->
+    <div class="modal-overlay" id="failModal">
+        <div class="modal-content">
+            <div class="modal-icon">😢</div>
+            <h2 class="modal-title">挑战失败</h2>
+            <p class="modal-message">次数用完了，再接再厉！</p>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <span class="modal-stat-label">正确答案</span>
+                    <span class="modal-stat-value" id="failAnswer">-</span>
+                </div>
+            </div>
+            <button class="modal-btn modal-btn-primary" onclick="closeFailModal(); newGame();">
+                🔄 再试一次
+            </button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 状态
+        let currentUser = null;
+        let secretNumber = [];
+        let attempts = 0;
+        let maxAttempts = Infinity; // 默认无限
+        let gameHistory = [];
+        let isGameOver = false;
+        let currentDifficulty = 'easy';
+        let digitLength = 4; // 默认4位数，支持3-6位
+        
+        // 新计分系统状态
+        let gameStats = {
+            quickHitBonus: 0,   // 快速命中奖励
+            precisionBonus: 0,  // 精准猜测奖励（每次A×3）
+            progressBonus: 0,   // 进步奖励（更接近+5）
+            lastDistance: Infinity, // 上次猜测的距离
+            won: false          // 是否获胜
+        };
+        
+        // 多人对战状态
+        const PLAYER_COLORS = ['🔵', '🔴', '🟢', '🟡'];
+        
+        let multiState = {
+            playerCount: 2,
+            players: [],
+            secret: [],
+            currentTurn: 0,        // 当前轮到哪位玩家
+            currentRound: 1,       // 当前回合（第几轮）
+            gameOver: false,
+            winner: null,          // 保留用于兼容，实际用 rankings
+            maxAttempts: 15,       // 默认15次
+            digitLength: 4,        // 多人模式默认4位数
+            guessOrder: 0,         // 全局猜测顺序（用于先猜中加分）
+            rankings: []           // 最终排名
+        };
+        
+        // 难度配置
+        const difficultyConfig = {
+            easy: { maxAttempts: Infinity, name: '入门', hint: '无限次数，轻松游玩' },
+            normal: { maxAttempts: 20, name: '普通', hint: '20次机会' },
+            hard: { maxAttempts: 15, name: '困难', hint: '15次机会' },
+            master: { maxAttempts: 5, name: '地狱', hint: '5次机会' }
+        };
+        
+        // 设置位数（3-6位）
+        function setDigitLength(length) {
+            digitLength = length;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.digit-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.digit-btn').classList.add('active');
+            
+            // 更新提示
+            const placeholder = '?'.repeat(length);
+            document.getElementById('guessInput').placeholder = placeholder;
+            document.getElementById('guessInput').maxLength = length;
+            
+            // 更新显示
+            const digitHint = document.getElementById('digitHint');
+            if (digitHint) {
+                digitHint.textContent = `${length}位数字`;
+            }
+            
+            // 更新提示文字
+            const digitHintText = document.getElementById('digitHintText');
+            if (digitHintText) {
+                digitHintText.textContent = `${length}位不重复`;
+            }
+            
+            showToast(`已切换到${length}位数字模式 🎯`);
+        }
+        
+        // 设置多人模式位数
+        function setMultiDigitLength(length) {
+            multiState.digitLength = length;
+            
+            // 更新按钮状态
+            document.querySelectorAll('#multiplayerArea .digit-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.digit-btn').classList.add('active');
+            
+            // 更新输入框占位符
+            const placeholder = '?'.repeat(length);
+            document.getElementById('multiGuessInput').placeholder = placeholder;
+            document.getElementById('multiGuessInput').maxLength = length;
+            
+            showToast(`已切换到${length}位数字模式 🎯`);
+        }
+
+        function init() {
+            loadCurrentUser();
+            renderPlayerInputs(); // 初始化多人对战玩家输入框
+            if (currentUser) {
+                showGameInterface();
+            }
+        }
+
+        function generateSecret() {
+            const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            secretNumber = [];
+            while (secretNumber.length < digitLength) {
+                const idx = Math.floor(Math.random() * digits.length);
+                secretNumber.push(digits.splice(idx, 1)[0]);
+            }
+        }
+
+        function validateGuess(input, len) {
+            const length = len || digitLength;
+            if (input.length !== length) return false;
+            const regex = new RegExp(`^\\d{${length}}$`);
+            if (!regex.test(input)) return false;
+            return new Set(input.split('')).size === length;
+        }
+        
+        // 检查是否有重复数字
+        function hasRepeatingDigits(input) {
+            const digits = input.split('');
+            return new Set(digits).size !== digits.length;
+        }
+
+        function evaluateGuess(guess, secret, len) {
+            const length = len || digitLength;
+            let a = 0, b = 0;
+            for (let i = 0; i < length; i++) {
+                if (guess[i] == secret[i]) {
+                    a++;
+                } else if (secret.includes(parseInt(guess[i]))) {
+                    b++;
+                }
+            }
+            return { a, b };
+        }
+
+        function login() {
+            const username = document.getElementById('usernameInput').value.trim();
+            if (!username) { showToast('请输入昵称'); return; }
+            if (username.length < 2) { showToast('昵称至少2个字符'); return; }
+
+            let players = JSON.parse(localStorage.getItem('players') || '[]');
+            let player = players.find(p => p.name === username);
+            
+            if (!player) {
+                player = {
+                    name: username,
+                    totalGames: 0,
+                    totalWins: 0,
+                    totalAttempts: 0,
+                    bestAttempts: 0,
+                    totalScore: 0,
+                    streak: 0,
+                    maxStreak: 0
+                };
+                players.push(player);
+                localStorage.setItem('players', JSON.stringify(players));
+                showToast('注册成功！欢迎 ' + username);
+            } else {
+                showToast('欢迎回来 ' + username);
+            }
+
+            currentUser = player;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showGameInterface();
+        }
+
+        function handleEnter(e) { if (e.key === 'Enter') login(); }
+        function handleGuessKey(e) { if (e.key === 'Enter') makeGuess(); }
+        function handleDuelGuessKey(e) { if (e.key === 'Enter') makeDuelGuess(); }
+
+        function logout() {
+            if (currentUser) savePlayers();
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            endMultiGame();
+            document.getElementById('loginCard').style.display = 'block';
+            document.getElementById('userChip').style.display = 'none';
+            document.getElementById('bottomNav').classList.remove('show');
+            hideAllAreas();
+            document.getElementById('usernameInput').value = '';
+            showToast('已切换账号');
+        }
+
+        // ============ 多人对战功能 ============
+        
+        // 设置玩家数量
+        function setPlayerCount(count) {
+            multiState.playerCount = count;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.player-count-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 重新渲染玩家输入框
+            renderPlayerInputs();
+        }
+        
+        // 渲染玩家输入框
+        function renderPlayerInputs() {
+            const container = document.getElementById('multiPlayersSetup');
+            let html = '';
+            
+            for (let i = 0; i < multiState.playerCount; i++) {
+                if (i > 0) {
+                    html += '<div class="vs-divider">⚔️</div>';
+                }
+                html += `
+                    <div class="multi-player-box">
+                        <div class="multi-player-icon">${PLAYER_COLORS[i]}</div>
+                        <div class="multi-player-label">玩家 ${i + 1}</div>
+                        <input type="text" id="multiPlayer${i}Name" class="multi-player-input" 
+                               placeholder="输入昵称" maxlength="10">
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // 设置难度（传入猜测次数：5-20）
+        function setMultiDifficulty(attempts) {
+            multiState.maxAttempts = attempts;
+            
+            // 更新按钮状态
+            document.querySelectorAll('#multiplayerArea .custom-presets .difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim() === attempts + '次') {
+                    btn.classList.add('active');
+                }
+            });
+            if (event && event.target) {
+                event.target.closest('.difficulty-btn').classList.add('active');
+            }
+        }
+        
+        // 更新多人模式次数显示
+        function updateMultiAttemptsDisplay(value) {
+            const slider = document.getElementById('multiAttemptsSlider');
+            if (slider) slider.value = value;
+            const valueEl = document.getElementById('multiAttemptsValue');
+            if (valueEl) valueEl.textContent = value;
+            
+            // 更新预设按钮状态
+            document.querySelectorAll('#multiplayerArea .custom-presets .difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim() === value + '次') {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // 设置多人模式自定义猜测次数
+        function setMultiCustomAttempts(value) {
+            multiState.maxAttempts = parseInt(value);
+            
+            // 更新滑块和显示
+            updateMultiAttemptsDisplay(value);
+            
+            showToast('已设置为每人 ' + value + ' 次挑战');
+        }
+        
+        // 开始多人游戏
+        function startMultiGame() {
+            // 收集玩家名称
+            multiState.players = [];
+            for (let i = 0; i < multiState.playerCount; i++) {
+                const nameInput = document.getElementById(`multiPlayer${i}Name`);
+                const name = nameInput ? (nameInput.value.trim() || `玩家${i + 1}`) : `玩家${i + 1}`;
+                multiState.players.push({
+                    index: i,
+                    name: name,
+                    color: PLAYER_COLORS[i],
+                    attempts: 0,
+                    remaining: multiState.maxAttempts || 15,
+                    history: [],
+                    guessedNumbers: [],    // 已猜测过的数字（用于检测重复）
+                    eliminated: false,
+                    winner: false,
+                    firstGuessBonus: 0,   // 先猜中加分
+                    gameStats: {
+                        quickHitBonus: 0,
+                        precisionBonus: 0,
+                        progressBonus: 0,
+                        lastDistance: Infinity,
+                        won: false
+                    }
+                });
+            }
+            
+            // 生成神秘数字
+            const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            multiState.secret = [];
+            const len = multiState.digitLength || 4;
+            while (multiState.secret.length < len) {
+                let idx = Math.floor(Math.random() * digits.length);
+                multiState.secret.push(digits.splice(idx, 1)[0]);
+            }
+            
+            // 重置游戏状态
+            multiState.currentTurn = 0;
+            multiState.currentRound = 1;
+            multiState.gameOver = false;
+            multiState.winner = null;
+            multiState.guessOrder = 0;
+            multiState.rankings = [];
+            multiState.players.forEach(p => {
+                p.remaining = multiState.maxAttempts;
+                p.attempts = 0;
+                p.eliminated = false;
+                p.winner = false;
+                p.history = [];
+                p.guessedNumbers = [];
+                p.firstGuessBonus = 0;
+                p.gameStats = {
+                    quickHitBonus: 0,
+                    precisionBonus: 0,
+                    progressBonus: 0,
+                    lastDistance: Infinity,
+                    won: false
+                };
+            });
+            
+            // 切换界面
+            document.getElementById('playerSetup').style.display = 'none';
+            document.getElementById('multiGameArea').style.display = 'block';
+            
+            // 渲染玩家卡片
+            renderPlayerCards();
+            
+            // 渲染历史记录区域
+            renderMultiHistory();
+            
+            // 更新显示
+            updateMultiDisplay();
+            showToast(`对战开始！${multiState.playerCount}名玩家争夺冠军 🎯`);
+        }
+        
+        // 渲染玩家状态卡片
+        function renderPlayerCards() {
+            const container = document.getElementById('multiPlayerCards');
+            let html = '';
+            
+            multiState.players.forEach((player, i) => {
+                let statusText = '';
+                let statusClass = '';
+                
+                if (player.winner) {
+                    statusText = '🎉 成功';
+                    statusClass = 'winner';
+                } else if (player.eliminated) {
+                    statusText = '💀 失败';
+                    statusClass = 'eliminated';
+                } else {
+                    statusText = `剩 ${player.remaining} 次`;
+                    if (i === multiState.currentTurn) statusClass = 'active';
+                }
+                
+                html += `
+                    <div class="multi-stat-card ${statusClass}" id="playerCard${i}">
+                        <div class="multi-stat-icon">${player.color}</div>
+                        <div class="multi-stat-name">${player.name}</div>
+                        <div class="multi-stat-info">
+                            <span class="num" id="remaining${i}">${statusText}</span>
+                        </div>
+                        <div class="multi-stat-info">
+                            <span class="num" id="attempts${i}">${player.attempts}</span> 次
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // 渲染历史记录
+        function renderMultiHistory() {
+            const container = document.getElementById('multiHistoryGrid');
+            let html = '';
+            
+            multiState.players.forEach((player, i) => {
+                const isCurrentPlayer = (i === multiState.currentTurn);
+                
+                // 游戏进行中：只显示当前玩家的历史
+                // 游戏结束后：显示所有玩家的历史
+                let historyItems;
+                if (!multiState.gameOver && !isCurrentPlayer) {
+                    // 非当前玩家在游戏进行中不显示历史
+                    historyItems = '<div class="multi-empty-hint">🔒 等待中...</div>';
+                } else if (player.history.length > 0) {
+                    historyItems = player.history.map((h, idx) => `
+                        <div class="multi-history-item ${h.a === (multiState.digitLength || 4) ? 'win' : ''}">
+                            <span class="history-num">${idx + 1}.</span>
+                            <span>${h.guess}</span>
+                            <span class="history-result ${h.a > 0 ? 'has-a' : ''}">${h.a}A${h.b}B</span>
+                        </div>
+                    `).join('');
+                } else {
+                    historyItems = '<div class="multi-empty-hint">等待猜测...</div>';
+                }
+                
+                html += `
+                    <div class="multi-history-box ${player.winner ? 'winner' : ''} ${player.eliminated ? 'eliminated' : ''} ${isCurrentPlayer && !multiState.gameOver ? 'current-player' : ''}">
+                        <div class="multi-history-box-header">
+                            ${player.color} ${player.name}
+                            ${player.winner ? '🎉' : ''}
+                            ${player.eliminated ? '💀' : ''}
+                            ${isCurrentPlayer && !multiState.gameOver ? '<span style="color: var(--primary); font-size: 12px;">(当前)</span>' : ''}
+                        </div>
+                        ${historyItems}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // 玩家输入时显示当前玩家的历史记录
+        function showCurrentPlayerHistory() {
+            const container = document.getElementById('multiHistoryGrid');
+            const input = document.getElementById('multiGuessInput').value;
+            
+            // 只有当玩家正在输入时才显示自己的历史
+            if (input.length > 0 && !multiState.gameOver) {
+                const currentPlayer = multiState.players[multiState.currentTurn];
+                let html = '';
+                
+                multiState.players.forEach((player, i) => {
+                    const isCurrentPlayer = (i === multiState.currentTurn);
+                    
+                    let historyItems;
+                    if (isCurrentPlayer && player.history.length > 0) {
+                        // 显示当前玩家的历史
+                        historyItems = player.history.map((h, idx) => `
+                            <div class="multi-history-item ${h.a === (multiState.digitLength || 4) ? 'win' : ''}">
+                                <span class="history-num">${idx + 1}.</span>
+                                <span>${h.guess}</span>
+                                <span class="history-result ${h.a > 0 ? 'has-a' : ''}">${h.a}A${h.b}B</span>
+                            </div>
+                        `).join('');
+                    } else if (isCurrentPlayer) {
+                        historyItems = '<div class="multi-empty-hint">等待猜测...</div>';
+                    } else {
+                        historyItems = '<div class="multi-empty-hint">🔒 等待中...</div>';
+                    }
+                    
+                    html += `
+                        <div class="multi-history-box ${player.winner ? 'winner' : ''} ${player.eliminated ? 'eliminated' : ''} ${isCurrentPlayer ? 'current-player' : ''}">
+                            <div class="multi-history-box-header">
+                                ${player.color} ${player.name}
+                                ${player.winner ? '🎉' : ''}
+                                ${player.eliminated ? '💀' : ''}
+                            </div>
+                            ${historyItems}
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+        }
+        
+        // 更新显示
+        function updateMultiDisplay() {
+            const currentPlayer = multiState.players[multiState.currentTurn];
+            
+            // 更新回合指示
+            document.getElementById('currentRoundDisplay').textContent = `第 ${multiState.currentRound} 轮`;
+            document.getElementById('currentPlayerBadge').textContent = currentPlayer.color;
+            document.getElementById('turnText').textContent = `轮到 ${currentPlayer.name} 猜测`;
+            
+            // 更新玩家卡片状态
+            document.querySelectorAll('.multi-stat-card').forEach((card, i) => {
+                card.classList.remove('active');
+                if (multiState.players[i].eliminated) {
+                    card.classList.add('eliminated');
+                } else if (multiState.players[i].winner) {
+                    card.classList.add('winner');
+                }
+            });
+            
+            const currentCard = document.getElementById(`playerCard${multiState.currentTurn}`);
+            if (currentCard && !multiState.players[multiState.currentTurn].eliminated) {
+                currentCard.classList.add('active');
+            }
+            
+            // 更新统计
+            multiState.players.forEach((player, i) => {
+                const remainingEl = document.getElementById(`remaining${i}`);
+                const attemptsEl = document.getElementById(`attempts${i}`);
+                if (remainingEl) remainingEl.textContent = player.remaining;
+                if (attemptsEl) attemptsEl.textContent = player.attempts;
+            });
+            
+            // 重新渲染历史记录（只显示当前玩家的记录，其他玩家的隐藏）
+            renderMultiHistory();
+            
+            // 清空输入框并聚焦
+            document.getElementById('multiGuessInput').value = '';
+            document.getElementById('multiGuessInput').focus();
+        }
+        
+        // 处理猜测
+        function makeMultiGuess() {
+            if (multiState.gameOver) return;
+            
+            const currentPlayer = multiState.players[multiState.currentTurn];
+            if (currentPlayer.eliminated) return;
+            
+            const input = document.getElementById('multiGuessInput').value.trim();
+            const len = multiState.digitLength || 4;
+            
+            // 验证输入
+            if (input.length !== len) {
+                showToast(`请输入${len}位数字！`);
+                return;
+            }
+            if (!/^\d+$/.test(input)) {
+                showToast('只能输入数字！');
+                return;
+            }
+            if (hasRepeatingDigits(input)) {
+                showToast('数字不能重复！');
+                return;
+            }
+            
+            // 检查重复猜测
+            if (currentPlayer.guessedNumbers.includes(input)) {
+                showToast('你已经猜过这个数字！');
+                return;
+            }
+            
+            // 记录猜测的数字
+            currentPlayer.guessedNumbers.push(input);
+            multiState.guessOrder++;
+            
+            const result = evaluateGuess(input, multiState.secret, len);
+            
+            // 更新计分统计
+            const currentDistance = len - result.a;
+            if (result.a > 0) {
+                currentPlayer.gameStats.precisionBonus += result.a * 3;
+            }
+            if (currentDistance < currentPlayer.gameStats.lastDistance) {
+                currentPlayer.gameStats.progressBonus += 5;
+            }
+            currentPlayer.gameStats.lastDistance = currentDistance;
+            
+            // 记录猜测
+            currentPlayer.attempts++;
+            currentPlayer.remaining--;
+            currentPlayer.history.push({
+                guess: input,
+                a: result.a,
+                b: result.b,
+                order: multiState.guessOrder
+            });
+            
+            // 更新历史记录
+            renderMultiHistory();
+            
+            // 检查是否猜中
+            if (result.a === len) {
+                currentPlayer.winner = true;
+                currentPlayer.gameStats.won = true;
+                
+                // 先猜中加分
+                const winnerCount = multiState.players.filter(p => p.winner).length;
+                if (winnerCount === 1) currentPlayer.firstGuessBonus = 30;
+                else if (winnerCount === 2) currentPlayer.firstGuessBonus = 20;
+                else if (winnerCount === 3) currentPlayer.firstGuessBonus = 10;
+                
+                showToast(`🎉 ${currentPlayer.name} 猜中了！游戏继续...`);
+            }
+            
+            // 检查是否还有机会
+            if (currentPlayer.remaining <= 0 && !currentPlayer.winner) {
+                currentPlayer.eliminated = true;
+            }
+            
+            // 检查游戏是否结束（所有人都猜中或用完次数）
+            const allDone = multiState.players.every(p => p.winner || p.eliminated);
+            if (allDone) {
+                multiState.gameOver = true;
+                calculateMultiRankings();
+                showMultiResult();
+                return;
+            }
+            
+            // 切换到下一个玩家
+            let nextTurn = -1;
+            let nextIndex = multiState.currentTurn + 1;
+            for (let i = 0; i < multiState.playerCount; i++) {
+                let checkIndex = (nextIndex + i) % multiState.playerCount;
+                if (!multiState.players[checkIndex].eliminated && !multiState.players[checkIndex].winner) {
+                    nextTurn = checkIndex;
+                    break;
+                }
+            }
+            
+            // 如果回到玩家0，说明新的一轮开始
+            if (nextTurn === 0 || nextTurn === -1) {
+                // 检查是否需要进入下一轮
+                let allGuessedThisRound = true;
+                for (let p of multiState.players) {
+                    if (!p.winner && !p.eliminated) {
+                        allGuessedThisRound = false;
+                        break;
+                    }
+                }
+                if (allGuessedThisRound) {
+                    // 所有人都已猜测（猜中或用完次数），游戏结束
+                    multiState.gameOver = true;
+                    calculateMultiRankings();
+                    showMultiResult();
+                    return;
+                }
+            }
+            
+            if (nextTurn === -1) {
+                // 找不到下一个玩家，游戏结束
+                multiState.gameOver = true;
+                calculateMultiRankings();
+                showMultiResult();
+                return;
+            }
+            
+            // 检查是否完成一轮（回到玩家0）
+            if (nextTurn <= multiState.currentTurn) {
+                multiState.currentRound++;
+            }
+            
+            multiState.currentTurn = nextTurn;
+            renderPlayerCards();
+            updateMultiDisplay();
+        }
+        
+        // 计算多人游戏排名
+        function calculateMultiRankings() {
+            multiState.rankings = multiState.players.map((p, idx) => {
+                const score = calculateMultiPlayerScore(p);
+                return {
+                    index: idx,
+                    name: p.name,
+                    color: p.color,
+                    won: p.winner,
+                    attempts: p.attempts,
+                    score: score,
+                    firstGuessBonus: p.firstGuessBonus
+                };
+            });
+            
+            // 排序：分数高的在前，猜中的优先，用次数少的
+            multiState.rankings.sort((a, b) => {
+                // 首先按是否猜中排序
+                if (a.won !== b.won) return b.won ? 1 : -1;
+                // 然后按分数排序
+                if (a.score !== b.score) return b.score - a.score;
+                // 最后按尝试次数排序（少在前）
+                return a.attempts - b.attempts;
+            });
+        }
+        
+        // 计算单个玩家的得分
+        function calculateMultiPlayerScore(player) {
+            if (!player.winner) return 0;
+            
+            const baseScore = 100;
+            const len = multiState.digitLength || 4;
+            const difficultyFactor = 1.0 + (len - 3) * 0.3;
+            const efficiency = (multiState.maxAttempts - player.attempts + 1.0) / multiState.maxAttempts;
+            
+            let quickHit = 0;
+            if (player.attempts === 1) quickHit = 100;
+            else if (player.attempts === 2) quickHit = 60;
+            else if (player.attempts <= 3) quickHit = 40;
+            
+            const totalScore = Math.floor(
+                baseScore * difficultyFactor * efficiency + 
+                quickHit + 
+                player.gameStats.precisionBonus + 
+                player.gameStats.progressBonus + 
+                player.firstGuessBonus
+            );
+            
+            return totalScore;
+        }
+        
+        // 显示结果
+        function showMultiResult() {
+            // 显示神秘数字
+            document.getElementById('secretDisplay').textContent = multiState.secret.join('');
+            document.getElementById('secretHintBox').style.display = 'block';
+            
+            // 构建排名显示
+            const rankingHtml = multiState.rankings.map((r, idx) => {
+                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '';
+                const status = r.won ? `✅ ${r.attempts}次` : '❌ 失败';
+                const bonusText = r.firstGuessBonus > 0 ? ` (+${r.firstGuessBonus}先猜)` : '';
+                return `
+                    <div class="ranking-item ${idx === 0 ? 'first' : ''}">
+                        <div class="ranking-position">${medal || (idx + 1)}</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">${r.color} ${r.name}</div>
+                            <div class="ranking-status">${status}</div>
+                        </div>
+                        <div class="ranking-score">${r.score}分${bonusText}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            const resultModal = document.getElementById('resultModal');
+            const modalContent = resultModal.querySelector('.modal-content');
+            
+            // 更新弹窗内容
+            document.getElementById('modalIcon').textContent = '🏆';
+            document.getElementById('modalTitle').textContent = '🏆 最终排名';
+            document.getElementById('modalMessage').innerHTML = `
+                <div class="secret-answer">答案是：${multiState.secret.join('')}</div>
+                <div class="ranking-list">${rankingHtml}</div>
+            `;
+            document.getElementById('modalAttempts').textContent = '-';
+            document.getElementById('modalBest').textContent = '-';
+            document.getElementById('modalWins').textContent = '-';
+            document.getElementById('modalTotalScore').textContent = '-';
+            document.getElementById('modalStreak').textContent = '-';
+            
+            // 隐藏得分显示
+            const scoreDisplay = document.querySelector('.score-display');
+            if (scoreDisplay) scoreDisplay.style.display = 'none';
+            
+            // 隐藏统计行
+            document.getElementById('streakRow').style.display = 'none';
+            
+            // 更新按钮文本
+            const modalBtn = resultModal.querySelector('.modal-btn-primary');
+            if (modalBtn) {
+                modalBtn.textContent = '🔄 再来一局';
+                modalBtn.onclick = () => {
+                    closeModal();
+                    endMultiGame();
+                };
+            }
+            
+            resultModal.classList.add('show');
+            
+            // 更新玩家卡片
+            renderPlayerCards();
+        }
+        
+        // 结束游戏
+        function endMultiGame() {
+            document.getElementById('playerSetup').style.display = 'block';
+            document.getElementById('multiGameArea').style.display = 'none';
+            document.getElementById('secretHintBox').style.display = 'none';
+            
+            // 显示统计行
+            document.getElementById('streakRow').style.display = '';
+            
+            // 重新渲染玩家输入框
+            renderPlayerInputs();
+        }
+        
+        // 键盘事件处理
+        function handleMultiGuessKey(e) { 
+            if (e.key === 'Enter') makeMultiGuess(); 
+        }
+
+        function loadCurrentUser() {
+            const saved = localStorage.getItem('currentUser');
+            if (saved) currentUser = JSON.parse(saved);
+        }
+
+        function getPlayers() {
+            return JSON.parse(localStorage.getItem('players') || '[]');
+        }
+
+        function savePlayers() {
+            if (!currentUser) return;
+            let players = getPlayers();
+            const index = players.findIndex(p => p.name === currentUser.name);
+            if (index !== -1) {
+                players[index] = currentUser;
+                localStorage.setItem('players', JSON.stringify(players));
+            }
+        }
+
+        function showGameInterface() {
+            document.getElementById('loginCard').style.display = 'none';
+            document.getElementById('userChip').style.display = 'flex';
+            document.getElementById('bottomNav').classList.add('show');
+            updateUserDisplay();
+            showTab('game');
+        }
+
+        function updateUserDisplay() {
+            if (!currentUser) return;
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            
+            let level = '新手';
+            if (currentUser.totalWins >= 50) level = '大师';
+            else if (currentUser.totalWins >= 20) level = '高手';
+            else if (currentUser.totalWins >= 10) level = '熟练';
+            else if (currentUser.totalWins >= 5) level = '入门';
+            
+            // 根据积分重新定义等级
+            let scoreLevel = '新手';
+            if ((currentUser.totalScore || 0) >= 10000) scoreLevel = '传奇';
+            else if ((currentUser.totalScore || 0) >= 5000) scoreLevel = '大师';
+            else if ((currentUser.totalScore || 0) >= 2000) scoreLevel = '高手';
+            else if ((currentUser.totalScore || 0) >= 1000) scoreLevel = '熟练';
+            else if ((currentUser.totalScore || 0) >= 500) scoreLevel = '入门';
+            
+            let streakText = '';
+            if (currentUser.streak >= 3) {
+                streakText = ' <span class="streak-badge-small">🔥' + currentUser.streak + '</span>';
+            }
+            
+            document.getElementById('userLevel').innerHTML = '⭐ ' + scoreLevel + streakText;
+            
+            document.getElementById('statGames').textContent = currentUser.totalGames;
+            document.getElementById('statWins').textContent = currentUser.totalWins;
+            document.getElementById('statBest').textContent = currentUser.bestAttempts || '-';
+            
+            // 更新统计面板显示积分
+            if (document.getElementById('gameArea').classList.contains('active')) {
+                // 动态添加积分统计
+                let statsContainer = document.querySelector('.game-stats');
+                let scoreBox = statsContainer.querySelector('.score-stat-box');
+                if (!scoreBox) {
+                    statsContainer.innerHTML += `
+                        <div class="stat-box score-stat-box">
+                            <div class="stat-value" style="color: var(--warning);">${currentUser.totalScore || 0}</div>
+                            <div class="stat-label">总积分</div>
+                        </div>
+                    `;
+                } else {
+                    scoreBox.querySelector('.stat-value').textContent = currentUser.totalScore || 0;
+                }
+            }
+        }
+
+        function hideAllAreas() {
+            document.querySelectorAll('.game-area, .multiplayer-area, .ranking-area').forEach(a => a.classList.remove('active'));
+        }
+
+        function showTab(tab) {
+            hideAllAreas();
+            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+            
+            if (tab === 'game') {
+                document.getElementById('gameArea').classList.add('active');
+                document.querySelector('.nav-btn:nth-child(1)').classList.add('active');
+                document.getElementById('guessInput').focus();
+            } else if (tab === 'multiplayer') {
+                document.getElementById('multiplayerArea').classList.add('active');
+                document.querySelector('.nav-btn:nth-child(2)').classList.add('active');
+            } else if (tab === 'ranking') {
+                document.getElementById('rankingArea').classList.add('active');
+                document.querySelector('.nav-btn:nth-child(3)').classList.add('active');
+                renderRanking();
+            }
+        }
+
+        function setDifficulty(diff) {
+            currentDifficulty = diff;
+            maxAttempts = difficultyConfig[diff].maxAttempts;
+            
+            // 更新按钮样式
+            document.querySelectorAll('#gameArea .difficulty-btn').forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) {
+                event.target.closest('.difficulty-btn').classList.add('active');
+            }
+            
+            // 更新提示
+            const limitHint = document.getElementById('limitHint');
+            const remainingAttempts = document.getElementById('remainingAttempts');
+            
+            if (maxAttempts !== Infinity) {
+                limitHint.style.display = 'block';
+                remainingAttempts.textContent = maxAttempts;
+            } else {
+                limitHint.style.display = 'none';
+            }
+            
+            showToast('已切换到 ' + difficultyConfig[diff].name + ' 模式');
+            newGame();
+        }
+        
+        // 更新次数显示
+        function updateAttemptsDisplay(value) {
+            document.getElementById('attemptsValue').textContent = value;
+            document.getElementById('attemptsSlider').value = value;
+            
+            // 更新预设按钮状态
+            document.querySelectorAll('#gameArea .custom-presets .difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim() === value + '次') {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // 设置自定义猜测次数
+        function setCustomAttempts(value) {
+            maxAttempts = parseInt(value);
+            currentDifficulty = 'custom';
+            
+            // 更新滑块和显示
+            updateAttemptsDisplay(value);
+            
+            // 更新提示
+            const limitHint = document.getElementById('limitHint');
+            const remainingAttempts = document.getElementById('remainingAttempts');
+            limitHint.style.display = 'block';
+            remainingAttempts.textContent = maxAttempts;
+            
+            showToast('已设置为 ' + maxAttempts + ' 次挑战');
+            newGame();
+        }
+
+        function showDifficultyInfo() {
+            document.getElementById('difficultyModal').classList.add('show');
+        }
+
+        function closeDifficultyModal() {
+            document.getElementById('difficultyModal').classList.remove('show');
+        }
+
+        function newGame() {
+            generateSecret();
+            attempts = 0;
+            gameHistory = [];
+            isGameOver = false;
+            
+            // 重置计分统计
+            gameStats = {
+                quickHitBonus: 0,
+                precisionBonus: 0,
+                progressBonus: 0,
+                lastDistance: Infinity,
+                won: false
+            };
+            
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessInput').placeholder = '?'.repeat(digitLength);
+            document.getElementById('guessInput').maxLength = digitLength;
+            document.getElementById('historyList').innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">🎮</div>
+                    <p>开始你的挑战...</p>
+                </div>
+            `;
+            
+            // 更新剩余次数显示
+            if (maxAttempts !== Infinity) {
+                document.getElementById('limitHint').style.display = 'block';
+                document.getElementById('remainingAttempts').textContent = maxAttempts;
+                document.getElementById('remainingAttempts').style.color = 'var(--primary)';
+            }
+            
+            // 更新位数提示
+            const digitHintText = document.getElementById('digitHintText');
+            if (digitHintText) {
+                digitHintText.textContent = `${digitLength}位不重复`;
+            }
+        }
+
+        function makeGuess() {
+            if (isGameOver) { showToast('游戏已结束，点击再来一局'); return; }
+
+            const input = document.getElementById('guessInput').value.trim();
+            if (!validateGuess(input)) { 
+                gameStats.totalPenalty += 5;
+                showToast(`请输入${digitLength}位不重复的数字`); 
+                return; 
+            }
+
+            attempts++;
+            
+            // 计算当前猜测与目标的接近程度（用于进步奖励）
+            const result = evaluateGuess(input, secretNumber);
+            const currentA = result.a;
+            const currentDistance = digitLength - currentA; // 距离 = 未正确的位数
+            
+            // 精准猜测奖励：每次猜测 A × 3分
+            if (currentA > 0) {
+                gameStats.precisionBonus += currentA * 3;
+            }
+            
+            // 进步奖励：如果比上次更接近目标
+            if (currentDistance < gameStats.lastDistance && gameStats.lastDistance !== Infinity) {
+                gameStats.progressBonus += 5;
+            }
+            gameStats.lastDistance = currentDistance;
+            
+            gameHistory.unshift({ guess: input, ...result });
+            
+            // 更新剩余次数
+            if (maxAttempts !== Infinity) {
+                const remaining = maxAttempts - attempts;
+                document.getElementById('remainingAttempts').textContent = remaining;
+                
+                if (remaining <= 3 && remaining > 0) {
+                    document.getElementById('remainingAttempts').style.color = 'var(--danger)';
+                }
+            }
+            
+            renderHistory();
+            document.getElementById('guessInput').value = '';
+
+            if (result.a === digitLength) {
+                isGameOver = true;
+                gameStats.won = true;
+                
+                // 快速命中奖励（优化后的规则）
+                if (attempts === 1) {
+                    gameStats.quickHitBonus = 100;
+                } else if (attempts === 2) {
+                    gameStats.quickHitBonus = 60;
+                } else if (attempts <= 3) {
+                    gameStats.quickHitBonus = 40;
+                }
+                
+                saveGameResult(true);
+                setTimeout(() => showWinModal(), 500);
+            } else if (maxAttempts !== Infinity && attempts >= maxAttempts) {
+                isGameOver = true;
+                gameStats.won = false;
+                saveGameResult(false);
+                setTimeout(() => showFailModal(), 500);
+            }
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            if (gameHistory.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">🎮</div><p>开始你的挑战...</p></div>';
+                return;
+            }
+            container.innerHTML = gameHistory.map(item => `
+                <div class="history-item">
+                    <span class="guess-number">${item.guess}</span>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="result-badge badge-a">${item.a}A</span>
+                        <span class="result-badge ${item.b > 0 ? 'badge-b' : 'badge-0'}">${item.b}B</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showWinModal() {
+            const modal = document.getElementById('resultModal');
+            let icon = '🎉', message = '你真是太厉害了！';
+            if (attempts <= 3) { icon = '👑'; message = '神仙级别！膜拜大佬！'; }
+            else if (attempts <= 5) { icon = '🌟'; message = '非常棒！聪明的头脑！'; }
+            else if (attempts <= 7) { icon = '👏'; message = '不错的成绩！继续加油！'; }
+            
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalTitle').textContent = `${currentUser.name} 恭喜通关！`;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalAttempts').textContent = attempts + ' 次';
+            document.getElementById('modalBest').textContent = currentUser.bestAttempts + ' 次';
+            document.getElementById('modalWins').textContent = currentUser.totalWins;
+            document.getElementById('modalTotalScore').textContent = currentUser.totalScore;
+            
+            // 显示得分
+            const scoreBreakdown = window.lastGameScore;
+            if (scoreBreakdown) {
+                document.getElementById('modalScore').textContent = '+' + scoreBreakdown.total;
+                
+                // 添加得分明细
+                let breakdownHtml = `
+                    <div class="score-breakdown">
+                        <div class="score-breakdown-item">
+                            <span>基础分</span>
+                            <span class="value">+${scoreBreakdown.base}</span>
+                        </div>
+                        <div class="score-breakdown-item">
+                            <span>效率系数</span>
+                            <span class="value">x${scoreBreakdown.efficiency}</span>
+                        </div>
+                        ${scoreBreakdown.quickHit > 0 ? `
+                        <div class="score-breakdown-item">
+                            <span>快速命中 (${attempts}次)</span>
+                            <span class="value">+${scoreBreakdown.quickHit}</span>
+                        </div>
+                        ` : ''}
+                        ${scoreBreakdown.precision > 0 ? `
+                        <div class="score-breakdown-item">
+                            <span>精准奖励</span>
+                            <span class="value">+${scoreBreakdown.precision}</span>
+                        </div>
+                        ` : ''}
+                        ${scoreBreakdown.progress > 0 ? `
+                        <div class="score-breakdown-item">
+                            <span>连续进步</span>
+                            <span class="value">+${scoreBreakdown.progress}</span>
+                        </div>
+                        ` : ''}
+                        ${scoreBreakdown.streak > 0 ? `
+                        <div class="score-breakdown-item">
+                            <span>连胜奖励 (${currentUser.streak}连胜)</span>
+                            <span class="value">+${scoreBreakdown.streak}</span>
+                        </div>
+                        ` : ''}
+                        ${scoreBreakdown.penalty > 0 ? `
+                        <div class="score-breakdown-item" style="color: var(--danger);">
+                            <span>惩罚</span>
+                            <span class="value">-${scoreBreakdown.penalty}</span>
+                        </div>
+                        ` : ''}
+                        <div class="score-breakdown-item">
+                            <span>位数系数 (${digitLength}位)</span>
+                            <span class="value">x${scoreBreakdown.difficultyFactor}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // 检查是否已有 breakdown，没有就添加
+                let scoreDisplay = document.querySelector('.score-display');
+                if (!scoreDisplay.querySelector('.score-breakdown')) {
+                    scoreDisplay.innerHTML += breakdownHtml;
+                }
+            }
+            
+            // 显示连胜
+            if (currentUser.streak >= 2) {
+                document.getElementById('modalStreak').innerHTML = currentUser.streak + ' <span class="streak-badge">🔥</span>';
+            } else {
+                document.getElementById('modalStreak').textContent = currentUser.streak;
+            }
+            
+            modal.classList.add('show');
+        }
+
+        function showFailModal() {
+            document.getElementById('failAnswer').textContent = secretNumber.join('');
+            document.getElementById('failModal').classList.add('show');
+        }
+
+        function closeFailModal() {
+            document.getElementById('failModal').classList.remove('show');
+            document.getElementById('remainingAttempts').style.color = 'var(--primary)';
+        }
+
+        function closeModal() { 
+            document.getElementById('resultModal').classList.remove('show');
+            // 恢复按钮原始行为
+            const modalBtn = document.querySelector('#resultModal .modal-btn-primary');
+            if (modalBtn) {
+                modalBtn.textContent = '🔄 再来一局';
+                modalBtn.onclick = () => {
+                    closeModal();
+                    newGame();
+                };
+            }
+        }
+
+        // ============ 新计分系统 ============
+        function calculateScore(attempts, difficulty, maxAttempts) {
+            // 基础分
+            const baseScore = 100;
+            
+            // 如果失败，返回0分
+            if (!gameStats.won) {
+                return {
+                    total: 0,
+                    base: 0,
+                    difficultyFactor: getDifficultyFactor(),
+                    efficiency: 0,
+                    quickHit: 0,
+                    precision: 0,
+                    progress: 0,
+                    streak: 0,
+                    penalty: 0
+                };
+            }
+            
+            // 1. 位数难度系数
+            const difficultyFactor = 1.0 + (digitLength - 3) * 0.3;
+            
+            // 2. 效率系数：(N-k+1)/N，次数越少越高
+            const efficiency = (maxAttempts - attempts + 1.0) / maxAttempts;
+            
+            // 3. 基础得分 = 基础分 × 效率系数 × 位数系数
+            const basePoints = baseScore * difficultyFactor * efficiency;
+            
+            // 4. 快速命中奖励（优化）
+            let quickHit = 0;
+            if (attempts === 1) quickHit = 100;
+            else if (attempts === 2) quickHit = 60;
+            else if (attempts <= 3) quickHit = 40;
+            
+            // 5. 精准奖励：每次A × 3分
+            const precision = gameStats.precisionBonus;
+            
+            // 6. 进步奖励：每次比上次更接近
+            const progress = gameStats.progressBonus;
+            
+            // 7. 连胜奖励（优化）
+            let streakBonus = 0;
+            if (currentUser.streak >= 5) streakBonus = 100;
+            else if (currentUser.streak >= 3) streakBonus = 40;
+            else if (currentUser.streak >= 2) streakBonus = 20;
+            
+            // 最终得分
+            const totalScore = Math.max(0, Math.floor(basePoints + quickHit + precision + progress + streakBonus));
+            
+            return {
+                total: totalScore,
+                base: Math.floor(basePoints),
+                difficultyFactor: difficultyFactor.toFixed(1),
+                efficiency: efficiency.toFixed(2),
+                quickHit: quickHit,
+                precision: precision,
+                progress: progress,
+                streak: streakBonus,
+                penalty: 0
+            };
+        }
+        
+        function getDifficultyFactor() {
+            return 1.0 + (digitLength - 3) * 0.3;
+        }
+
+        function saveGameResult(won) {
+            if (!currentUser) return;
+            currentUser.totalGames++;
+            
+            if (won) {
+                currentUser.totalWins++;
+                currentUser.totalAttempts += attempts;
+                if (!currentUser.bestAttempts || attempts < currentUser.bestAttempts) {
+                    currentUser.bestAttempts = attempts;
+                }
+                
+                // 计算并添加积分
+                const scoreBreakdown = calculateScore(attempts, currentDifficulty, maxAttempts);
+                currentUser.totalScore += scoreBreakdown.total;
+                
+                // 更新连胜
+                currentUser.streak++;
+                if (currentUser.streak > currentUser.maxStreak) {
+                    currentUser.maxStreak = currentUser.streak;
+                }
+                
+                // 保存本次得分到全局变量供弹窗显示
+                window.lastGameScore = scoreBreakdown;
+            } else {
+                // 失败，重置连胜
+                currentUser.streak = 0;
+                window.lastGameScore = null;
+            }
+            
+            savePlayers();
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserDisplay();
+        }
+
+        function closeMultiModal() {
+            document.getElementById('multiResultModal').classList.remove('show');
+        }
+
+        // 刷新房间状态
+        setInterval(() => {
+            if (currentRoom && !multiGameEnded) {
+                const roomData = localStorage.getItem('multiRoom_' + currentRoom.code);
+                if (roomData) {
+                    currentRoom = JSON.parse(roomData);
+                    renderPlayersInRoom();
+                }
+            }
+        }, 2000);
+
+        function renderRanking() {
+            let players = getPlayers();
+            // 按总积分排序
+            players.sort((a, b) => {
+                return (b.totalScore || 0) - (a.totalScore || 0);
+            });
+
+            const medals = ['🥇', '🥈', '🥉'];
+            const container = document.getElementById('rankingList');
+            
+            if (players.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">🏆</div><p>暂无数据，成为第一位挑战者吧！</p></div>';
+                return;
+            }
+
+            container.innerHTML = players.slice(0, 10).map((p, i) => {
+                const rate = p.totalGames > 0 ? ((p.totalWins / p.totalGames) * 100).toFixed(0) : 0;
+                const rankClass = i === 0 ? 'gold' : (i === 1 ? 'silver' : (i === 2 ? 'bronze' : ''));
+                
+                return `
+                    <li class="ranking-item ${rankClass}">
+                        <div class="rank-badge">${medals[i] || (i + 1)}</div>
+                        <div class="player-info">
+                            <div class="player-name">${p.name}${p.maxStreak >= 3 ? ' <span class="streak-badge-small">🔥' + p.maxStreak + '</span>' : ''}</div>
+                            <div class="player-stats">${p.totalGames}场 ${p.totalWins}胜 最佳${p.bestAttempts || '-'}次</div>
+                        </div>
+                        <div class="player-rate">
+                            <div class="rate-value">${p.totalScore || 0}</div>
+                            <div class="player-stats">总积分</div>
+                        </div>
+                            <div class="player-stats">${p.totalGames}场 ${p.totalWins}胜 ${p.bestAttempts ? '最佳' + p.bestAttempts + '次' : ''}</div>
+                        </div>
+                        <div class="player-rate">
+                            <div class="rate-value">${rate}%</div>
+                            <div class="player-stats">胜率</div>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // 背景音乐控制
+        let musicPlaying = false;
+        let currentMusicIndex = 0;
+        const bgMusic = document.getElementById('bgMusic');
+        const musicList = ['C400001sInVF0hbF3V.m4a', 'bgm.mp3'];
+        
+        function toggleMusic() {
+            const musicBtn = document.getElementById('musicBtn');
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicBtn.classList.remove('playing');
+                musicBtn.textContent = '🎵';
+                musicPlaying = false;
+            } else {
+                bgMusic.play().then(() => {
+                    musicBtn.classList.add('playing');
+                    musicBtn.textContent = '🔊';
+                    musicPlaying = true;
+                }).catch(err => {
+                    showToast('播放失败，请刷新页面重试！');
+                });
+            }
+        }
+        
+        function setVolume(value) {
+            bgMusic.volume = value / 100;
+        }
+        
+        function nextMusic() {
+            currentMusicIndex = (currentMusicIndex + 1) % musicList.length;
+            bgMusic.src = musicList[currentMusicIndex];
+            if (musicPlaying) {
+                bgMusic.play();
+            }
+            showToast('已切换到下一首');
+        }
+
+        function showRules() {
+            document.getElementById('ruleModal').classList.add('show');
+        }
+
+        function closeRuleModal() {
+            document.getElementById('ruleModal').classList.remove('show');
+        }
+
+        document.getElementById('ruleModal').addEventListener('click', function(e) {
+            if (e.target === this) closeRuleModal();
+        });
+
+        document.getElementById('difficultyModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDifficultyModal();
+        });
+
+        init();
+    </script>
+</body>
+</html>

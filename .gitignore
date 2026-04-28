@@ -1,0 +1,10 @@
+# 数据文件
+*.dat
+
+# 编译文件
+*.exe
+*.o
+
+# 缓存文件夹
+node_modules/
+.DS_Store
